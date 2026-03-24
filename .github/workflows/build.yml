@@ -21,11 +21,11 @@ jobs:
       - name: Show current directory
         run: |
           echo "Current directory:"
-          pwd
+          Get-Location
           echo "Files in root:"
-          dir
+          Get-ChildItem
           echo "All files recursively:"
-          dir /s
+          Get-ChildItem -Recurse
       
       - name: Restore packages
         run: dotnet restore ScheduleApp.csproj
