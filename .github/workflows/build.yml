@@ -18,14 +18,18 @@ jobs:
           dotnet workload install maui --source https://api.nuget.org/v3/index.json
           dotnet workload install android --source https://api.nuget.org/v3/index.json
       
-      - name: Show current directory
+      - name: Move files to root
         run: |
-          echo "Current directory:"
-          Get-Location
-          echo "Files in root:"
-          Get-ChildItem
-          echo "All files recursively:"
-          Get-ChildItem -Recurse
+          # Перемещаем все файлы из .github/workflows/ в корень
+          if (Test-Path ".github/workflows/ScheduleApp.csproj") {
+            Move-Item -Path ".github/workflows/*" -Destination . -Force
+            Remove-Item -Path ".github/workflows/Models" -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path ".github/workflows/Services" -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item -Path ".github/workflows/Views" -Recurse -Force -ErrorAction SilentlyContinue
+          }
+      
+      - name: Show files
+        run: Get-ChildItem -Recurse
       
       - name: Restore packages
         run: dotnet restore ScheduleApp.csproj
