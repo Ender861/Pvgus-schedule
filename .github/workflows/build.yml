@@ -1,0 +1,25 @@
+name: Build APK
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Install MAUI
+        run: |
+          dotnet workload install maui
+          dotnet workload install android
+      - name: Restore
+        run: dotnet restore
+      - name: Publish APK
+        run: dotnet publish -f net8.0-android -c Release
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: schedule-app
+          path: bin/Release/net8.0-android/publish/*.apk
