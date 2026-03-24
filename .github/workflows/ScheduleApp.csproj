@@ -8,8 +8,6 @@
     <ApplicationId>com.pvus.schedule</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-    
-    <!-- Игнорируем предупреждение об устаревшей версии -->
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
