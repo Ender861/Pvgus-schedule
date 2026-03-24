@@ -18,8 +18,14 @@ jobs:
           dotnet workload install maui --source https://api.nuget.org/v3/index.json
           dotnet workload install android --source https://api.nuget.org/v3/index.json
       
-      - name: List files (для отладки)
-        run: dir
+      - name: Show current directory
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Files in root:"
+          dir
+          echo "All files recursively:"
+          dir /s
       
       - name: Restore packages
         run: dotnet restore ScheduleApp.csproj
