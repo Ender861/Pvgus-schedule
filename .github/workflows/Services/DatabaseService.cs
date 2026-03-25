@@ -29,15 +29,6 @@ public class DatabaseService
             .ToListAsync();
     }
     
-    public Task<List<ScheduleItem>> GetWeekScheduleAsync(DateTime startDate, DateTime endDate)
-    {
-        return _database.Table<ScheduleItem>()
-            .Where(s => s.Date >= startDate && s.Date <= endDate)
-            .OrderBy(s => s.Date)
-            .ThenBy(s => s.Time)
-            .ToListAsync();
-    }
-    
     public Task<int> SaveScheduleAsync(ScheduleItem item)
     {
         return _database.InsertAsync(item);
