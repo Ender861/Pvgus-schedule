@@ -4,7 +4,6 @@ using Microsoft.Maui.Hosting;
 using SQLite;
 using System.Text.Json;
 
-// ==================== ТОЧКА ВХОДА ====================
 namespace ScheduleApp;
 
 public static class MauiProgram
@@ -201,24 +200,22 @@ public class SchedulePage : ContentPage
                     Margin = new Thickness(10, 0, 0, 0)
                 };
                 
-                var grid = new Grid
-                {
-                    ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Auto }, new ColumnDefinition { Width = GridLength.Star } }
-                };
+                var grid = new Grid();
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
                 grid.Children.Add(timeLabel);
                 grid.Children.Add(layout);
                 Grid.SetColumn(layout, 1);
                 
-                var frame = new Frame { Content = grid, Margin = 5, Padding = 10 };
-                return frame;
+                var border = new Border { Content = grid, Margin = 5, Padding = 10, StrokeThickness = 0, BackgroundColor = Colors.White };
+                return border;
             })
         };
         _scheduleList.SelectionChanged += OnScheduleSelected;
         
-        var grid = new Grid
-        {
-            RowDefinitions = { new RowDefinition { Height = GridLength.Auto }, new RowDefinition { Height = GridLength.Star } }
-        };
+        var grid = new Grid();
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Star });
         grid.Children.Add(_datePicker);
         grid.Children.Add(_scheduleList);
         Grid.SetRow(_scheduleList, 1);
@@ -284,16 +281,15 @@ public class HomeworkPage : ContentPage
                 var check = new CheckBox { VerticalOptions = LayoutOptions.Center };
                 check.SetBinding(CheckBox.IsCheckedProperty, "IsCompleted");
                 
-                var grid = new Grid
-                {
-                    ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } }
-                };
+                var grid = new Grid();
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
                 grid.Children.Add(new StackLayout { Children = { subject, task, deadline } });
                 grid.Children.Add(check);
                 Grid.SetColumn(check, 1);
                 
-                var frame = new Frame { Content = grid, Margin = 5, Padding = 10 };
-                return frame;
+                var border = new Border { Content = grid, Margin = 5, Padding = 10, StrokeThickness = 0, BackgroundColor = Colors.White };
+                return border;
             })
         };
         _list.SelectionChanged += OnSelected;
@@ -350,10 +346,10 @@ public class DailyNotesPage : ContentPage
         var saveBtn = new Button { Text = "Сохранить", BackgroundColor = Color.FromArgb("#512BD4"), TextColor = Colors.White, Margin = 10 };
         saveBtn.Clicked += OnSave;
         
-        var grid = new Grid
-        {
-            RowDefinitions = { GridLength.Auto, GridLength.Star, GridLength.Auto }
-        };
+        var grid = new Grid();
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Star });
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         grid.Children.Add(_datePicker);
         grid.Children.Add(_editor);
         grid.Children.Add(saveBtn);
