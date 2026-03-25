@@ -6,13 +6,11 @@ namespace ScheduleApp.Views;
 public partial class SchedulePage : ContentPage
 {
     private DatabaseService _dbService;
-    private List<ScheduleItem> _currentSchedule;
     
     public SchedulePage()
     {
         InitializeComponent();
         _dbService = new DatabaseService();
-        _currentSchedule = new List<ScheduleItem>();
         DatePicker.Date = DateTime.Today;
     }
     
@@ -23,10 +21,10 @@ public partial class SchedulePage : ContentPage
     
     private async Task LoadSchedule(DateTime date)
     {
-        _currentSchedule = await _dbService.GetScheduleAsync(date);
-        ScheduleListView.ItemsSource = _currentSchedule;
+        var schedule = await _dbService.GetScheduleAsync(date);
+        ScheduleListView.ItemsSource = schedule;
         
-        if (!_currentSchedule.Any())
+        if (!schedule.Any())
         {
             await DisplayAlert("Нет расписания", 
                 "Расписание на эту дату не найдено. Обновите его в настройках.", "OK");
