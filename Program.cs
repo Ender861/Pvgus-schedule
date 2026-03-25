@@ -3,7 +3,6 @@ using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
 using SQLite;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 // ==================== ТОЧКА ВХОДА ====================
 namespace ScheduleApp;
@@ -73,10 +72,10 @@ public class DatabaseService
     {
         var dbPath = Path.Combine(FileSystem.AppDataDirectory, "schedule.db3");
         _database = new SQLiteAsyncConnection(dbPath);
-        InitializeDatabase();
+        Task.Run(async () => await InitializeDatabase());
     }
     
-    private async void InitializeDatabase()
+    private async Task InitializeDatabase()
     {
         await _database.CreateTableAsync<ScheduleItem>();
         await _database.CreateTableAsync<Homework>();
@@ -204,36 +203,44 @@ public class SchedulePage : ContentPage
                 
                 var grid = new Grid
                 {
-                    ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Auto }, new ColumnDefinition { Width = GridLength.Star } },
-                    Children = { timeLabel, layout }
+                    ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Auto }, new ColumnDefinition { Width = GridLength.Star } }
                 };
+                grid.Children.Add(timeLabel);
+                grid.Children.Add(layout);
                 Grid.SetColumn(layout, 1);
                 
-                return new Frame { Content = grid, Margin = 5, Padding = 10 };
+                var frame = new Frame { Content = grid, Margin = 5, Padding = 10 };
+                return frame;
             })
         };
         _scheduleList.SelectionChanged += OnScheduleSelected;
         
-        Content = new Grid
+        var grid = new Grid
         {
-            RowDefinitions = { new RowDefinition { Height = GridLength.Auto }, new RowDefinition { Height = GridLength.Star } },
-            Children = { _datePicker, _scheduleList }
+            RowDefinitions = { new RowDefinition { Height = GridLength.Auto }, new RowDefinition { Height = GridLength.Star } }
         };
+        grid.Children.Add(_datePicker);
+        grid.Children.Add(_scheduleList);
         Grid.SetRow(_scheduleList, 1);
         
-        LoadSchedule(DateTime.Today);
+        Content = grid;
+        
+        _ = LoadSchedule(DateTime.Today);
     }
     
-    private async void OnDateSelected(object sender, DateChangedEventArgs e) => await LoadSchedule(e.NewDate);
+    private async void OnDateSelected(object? sender, DateChangedEventArgs e) => await LoadSchedule(e.NewDate);
     
     private async Task LoadSchedule(DateTime date)
     {
         _scheduleList.ItemsSource = await _db.GetScheduleAsync(date);
-        if (!((System.Collections.IList)_scheduleList.ItemsSource)?.Cast<object>().Any() == true)
+        var items = _scheduleList.ItemsSource as IEnumerable<object>;
+        if (items == null || !items.Any())
+        {
             await DisplayAlert("Нет расписания", "Обновите в настройках", "OK");
+        }
     }
     
-    private async void OnScheduleSelected(object sender, SelectionChangedEventArgs e)
+    private async void OnScheduleSelected(object? sender, SelectionChangedEventArgs e)
     {
         if (e.CurrentSelection.FirstOrDefault() is ScheduleItem item)
         {
@@ -279,11 +286,14 @@ public class HomeworkPage : ContentPage
                 
                 var grid = new Grid
                 {
-                    ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } },
-                    Children = { new StackLayout { Children = { subject, task, deadline } }, check }
+                    ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Auto } }
                 };
+                grid.Children.Add(new StackLayout { Children = { subject, task, deadline } });
+                grid.Children.Add(check);
                 Grid.SetColumn(check, 1);
-                return new Frame { Content = grid, Margin = 5, Padding = 10 };
+                
+                var frame = new Frame { Content = grid, Margin = 5, Padding = 10 };
+                return frame;
             })
         };
         _list.SelectionChanged += OnSelected;
@@ -298,7 +308,7 @@ public class HomeworkPage : ContentPage
     
     private async Task Load() => _list.ItemsSource = await _db.GetAllHomeworkAsync();
     
-    private async void OnSelected(object sender, SelectionChangedEventArgs e)
+    private async void OnSelected(object? sender, SelectionChangedEventArgs e)
     {
         if (e.CurrentSelection.FirstOrDefault() is Homework hw)
         {
@@ -340,18 +350,22 @@ public class DailyNotesPage : ContentPage
         var saveBtn = new Button { Text = "Сохранить", BackgroundColor = Color.FromArgb("#512BD4"), TextColor = Colors.White, Margin = 10 };
         saveBtn.Clicked += OnSave;
         
-        Content = new Grid
+        var grid = new Grid
         {
-            RowDefinitions = { GridLength.Auto, GridLength.Star, GridLength.Auto },
-            Children = { _datePicker, _editor, saveBtn }
+            RowDefinitions = { GridLength.Auto, GridLength.Star, GridLength.Auto }
         };
+        grid.Children.Add(_datePicker);
+        grid.Children.Add(_editor);
+        grid.Children.Add(saveBtn);
         Grid.SetRow(_editor, 1);
         Grid.SetRow(saveBtn, 2);
         
-        LoadNote(DateTime.Today);
+        Content = grid;
+        
+        _ = LoadNote(DateTime.Today);
     }
     
-    private async void OnDateSelected(object sender, DateChangedEventArgs e) => await LoadNote(e.NewDate);
+    private async void OnDateSelected(object? sender, DateChangedEventArgs e) => await LoadNote(e.NewDate);
     
     private async Task LoadNote(DateTime date)
     {
@@ -359,7 +373,7 @@ public class DailyNotesPage : ContentPage
         _editor.Text = notes.FirstOrDefault()?.Content ?? "";
     }
     
-    private async void OnSave(object sender, EventArgs e)
+    private async void OnSave(object? sender, EventArgs e)
     {
         var notes = await _db.GetNotesAsync(_datePicker.Date);
         var note = notes.FirstOrDefault() ?? new DailyNote { Date = _datePicker.Date };
@@ -410,7 +424,7 @@ public class SettingsPage : ContentPage
         };
     }
     
-    private async void OnUpdate(object sender, EventArgs e)
+    private async void OnUpdate(object? sender, EventArgs e)
     {
         var group = _groupEntry.Text?.Trim();
         if (string.IsNullOrEmpty(group))
@@ -442,7 +456,7 @@ public class SettingsPage : ContentPage
         finally { btn.IsEnabled = true; btn.Text = "Обновить расписание"; }
     }
     
-    private async void OnClear(object sender, EventArgs e)
+    private async void OnClear(object? sender, EventArgs e)
     {
         if (await DisplayAlert("Подтверждение", "Очистить всё расписание?", "Да", "Нет"))
         {
